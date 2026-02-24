@@ -16,4 +16,10 @@ npm run preview
 
 ### Notes
 
-- The UI is currently **local-first** (data is stored in `localStorage`) so you can use it even before your backend/API is ready.
+Current Deployment is within the vercel system for the prototype demonstration of the figma UI Design
+
+https://itec-proj-cpoexqt11-abhishek-pokhrels-projects.vercel.app/
+
+
+- This is a local first prototype design for demonstration
+further rdbms/non-rdbms integration will be implemented with md5 or blowfish authentification
