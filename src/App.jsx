@@ -1,16 +1,12 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import Dashboard from './pages/Dashboard'
+import { AppProvider } from './state/appState'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <strong> Web Frontend Project - ITEC 2026</strong>
-      
-    </>
+    <AppProvider>
+      <Dashboard />
+    </AppProvider>
   )
 }
 
