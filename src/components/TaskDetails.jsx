@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react'
+import { Ellipsis, Pencil, Timer } from 'lucide-react'
 import { Badge } from '../ui/Badge'
 import { Card } from '../ui/Card'
 import { useApp } from '../state/useApp'
@@ -32,7 +33,7 @@ function Field({ label, children }) {
   )
 }
 
-export function TaskDetails({ task }) {
+export function TaskDetails({ task, onEdit }) {
   const { state, derived } = useApp()
   const project = useMemo(
     () => state.projects.find((p) => p.id === state.ui.selectedProjectId) ?? state.projects[0],
@@ -42,7 +43,7 @@ export function TaskDetails({ task }) {
   if (!task) {
     return (
       <Card className="p-6">
-        <div className="text-sm text-white/70">No task selected.</div>
+        <div className="text-sm font-semibold text-slate-500">No task selected.</div>
       </Card>
     )
   }
@@ -52,29 +53,49 @@ export function TaskDetails({ task }) {
 
   return (
     <Card className="overflow-hidden">
-      <div className="relative">
-        <div className="h-40 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-300" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_260px_at_30%_0%,rgba(79,70,229,0.28),transparent_70%)]" />
-        <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-4 p-5">
-          <div className="min-w-0">
-            <div className="text-xs font-extrabold uppercase tracking-wide text-slate-600">
-              Projects <span className="px-2 text-slate-400">→</span> {project?.name}
-            </div>
-            <div className="mt-1 truncate text-2xl font-extrabold text-slate-900">{task.title}</div>
-            <div className="mt-1 truncate text-sm font-semibold text-slate-600">{task.headline}</div>
+      <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+        <div>
+          <div className="text-2xl font-extrabold text-slate-900">{task.title}</div>
+          <div className="mt-1 text-xs font-semibold text-slate-400">
+            Projects <span className="px-1 text-slate-300">→</span> {project?.name} <span className="px-1 text-slate-300">•</span> Task
           </div>
-          <div className="hidden shrink-0 items-center gap-6 rounded-2xl border border-slate-200/70 bg-white/75 px-4 py-3 backdrop-blur md:flex">
+        </div>
+        <div className="inline-flex items-center gap-1">
+          <button
+            onClick={() => onEdit && onEdit()}
+            className="grid h-9 w-9 place-items-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+            title="Edit task"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+          <button className="grid h-9 w-9 place-items-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-700">
+            <Ellipsis className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      <div className="relative">
+        <div className="h-36 bg-[linear-gradient(112deg,#8ba5b1_0%,#9baeb0_18%,#cbcabf_38%,#9fb5c4_64%,#46708d_100%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_240px_at_80%_0%,rgba(15,23,42,0.35),transparent_70%)]" />
+        <div className="absolute inset-x-0 top-0 flex items-end justify-between gap-4 p-5">
+          <div className="min-w-0">
+            <div className="truncate text-xl font-extrabold text-white">{task.title}</div>
+            <div className="mt-1 truncate text-sm font-semibold text-white/80">{task.headline}</div>
+          </div>
+          <div className="hidden shrink-0 items-center gap-6 rounded-2xl border border-white/30 bg-white/15 px-4 py-2.5 backdrop-blur md:flex">
             <div>
-              <div className="text-[10px] font-extrabold uppercase tracking-wide text-slate-400">Created</div>
-              <div className="text-sm font-extrabold text-slate-800">{fmtDate(task.createdAt)}</div>
+              <div className="text-[10px] font-extrabold uppercase tracking-wide text-white/70">Created</div>
+              <div className="text-sm font-extrabold text-white">{fmtDate(task.createdAt)}</div>
             </div>
             <div>
-              <div className="text-[10px] font-extrabold uppercase tracking-wide text-slate-400">Deadline</div>
-              <div className="text-sm font-extrabold text-slate-800">{fmtDate(task.deadlineAt)}</div>
+              <div className="text-[10px] font-extrabold uppercase tracking-wide text-white/70">Deadline</div>
+              <div className="text-sm font-extrabold text-white">{fmtDate(task.deadlineAt)}</div>
             </div>
             <div>
-              <div className="text-[10px] font-extrabold uppercase tracking-wide text-slate-400">Tracked time</div>
-              <div className="text-sm font-extrabold text-slate-800">{tracked}</div>
+              <div className="text-[10px] font-extrabold uppercase tracking-wide text-white/70">Tracked time</div>
+              <div className="inline-flex items-center gap-1 text-sm font-extrabold text-white">
+                <Timer className="h-4 w-4" /> {tracked}
+              </div>
             </div>
           </div>
         </div>
