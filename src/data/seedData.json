@@ -1,0 +1,12 @@
+{
+  "ui": {
+    "activeNav": "projects",
+    "viewMode": "calendar",
+    "selectedProjectId": null,
+    "selectedTaskId": null
+  },
+  "projects": [],
+  "tasksByProject": {},
+  "notes": [],
+  "todos": []
+}
