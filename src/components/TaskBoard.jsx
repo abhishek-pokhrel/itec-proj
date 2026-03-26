@@ -6,6 +6,7 @@ import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 import { Input } from '../ui/Input'
+import API from '../lib/api'
 
 const columns = [
   { id: 'open', title: 'Open', dot: 'bg-slate-400' },
@@ -195,8 +196,12 @@ export function TaskBoard({ tasks, viewMode, onViewModeChange }) {
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         const title = (draftByCol[col.id] ?? '').trim()
-                        dispatch({ type: 'task/add', projectId, status: col.id, title })
-                        setDraftByCol((d) => ({ ...d, [col.id]: '' }))
+                        if (title) {
+                          API.post('/tasks', { title, status: col.id, projectId }).then(res => {
+                            dispatch({ type: 'task/add', task: res.data })
+                            setDraftByCol((d) => ({ ...d, [col.id]: '' }))
+                          }).catch(err => console.error('Failed to add task', err))
+                        }
                       }
                     }}
                   />

@@ -19,11 +19,21 @@ app.use(express.json())
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+  maxPoolSize: 10,
+  minPoolSize: 2,
+  serverSelectionTimeoutMS: 10000,
+  socketTimeoutMS: 45000,
+  connectTimeoutMS: 10000,
+  family: 4 // Use IPv4 to avoid network issues
 })
 .then(() => console.log('MongoDB connected'))
-.catch(err => console.log(err))
+.catch(err => {
+  console.log('MongoDB connection error:', err.message)
+  console.log('Retrying connection in 3 seconds...')
+  setTimeout(() => {
+    mongoose.connect(process.env.MONGODB_URI)
+  }, 3000)
+})
 
 // Routes
 app.use('/api/auth', authRoutes)

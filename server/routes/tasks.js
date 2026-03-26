@@ -5,11 +5,16 @@ const auth = require('../middleware/auth')
 const router = express.Router()
 
 // @route   GET /api/tasks
-// @desc    Get all tasks for user
+// @desc    Get all tasks for user or filter by projectId
 // @access  Private
 router.get('/', auth, async (req, res) => {
   try {
-    const tasks = await Task.find({ userId: req.user.id }).populate('projectId')
+    const { projectId } = req.query
+    let query = { userId: req.user.id }
+    if (projectId) {
+      query.projectId = projectId
+    }
+    const tasks = await Task.find(query).populate('projectId')
     res.json(tasks)
   } catch (err) {
     console.error(err.message)

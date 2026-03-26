@@ -5,6 +5,7 @@ import { cn } from '../lib/cn'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { useNavigate } from 'react-router-dom'
+import API from '../lib/api'
 
 function NavItem({ active, icon: Icon, children, onClick }) {
   const IconComp = Icon
@@ -87,8 +88,12 @@ export function Sidebar() {
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 const name = projectName.trim()
-                dispatch({ type: 'project/add', name })
-                setProjectName('')
+                if (name) {
+                  API.post('/projects', { name }).then(res => {
+                    dispatch({ type: 'project/add', project: res.data })
+                    setProjectName('')
+                  }).catch(err => console.error('Failed to add project', err))
+                }
               }
             }}
           />

@@ -34,9 +34,16 @@ router.post('/register', async (req, res) => {
       },
     }
 
-    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
+    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' }, (err, token) => {
       if (err) throw err
-      res.json({ token })
+      res.json({ 
+        token,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email
+        }
+      })
     })
   } catch (err) {
     console.error(err.message)
@@ -67,9 +74,16 @@ router.post('/login', async (req, res) => {
       },
     }
 
-    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
+    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' }, (err, token) => {
       if (err) throw err
-      res.json({ token })
+      res.json({ 
+        token,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email
+        }
+      })
     })
   } catch (err) {
     console.error(err.message)
