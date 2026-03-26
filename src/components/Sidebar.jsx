@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react'
-import { Calendar, ChevronDown, Folder, LayoutGrid, Plus, Settings } from 'lucide-react'
+import { Calendar, ChevronDown, Folder, LayoutGrid, Plus, Settings, LogOut } from 'lucide-react'
 import { useApp } from '../state/useApp'
 import { cn } from '../lib/cn'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
+import { useNavigate } from 'react-router-dom'
 
 function NavItem({ active, icon: Icon, children, onClick }) {
   const IconComp = Icon
@@ -32,20 +33,17 @@ function Avatar({ text = 'u' }) {
 export function Sidebar() {
   const { state, dispatch, derived } = useApp()
   const [projectName, setProjectName] = useState('')
+  const navigate = useNavigate()
 
   const selectedProject = useMemo(
     () => state.projects.find((p) => p.id === state.ui.selectedProjectId) ?? state.projects[0],
     [state.projects, state.ui.selectedProjectId],
   )
 
-  const projectTaskCount = useMemo(
-    () =>
-      state.projects.reduce(
-        (acc, project) => ({ ...acc, [project.id]: (state.tasksByProject[project.id] ?? []).length }),
-        {},
-      ),
-    [state.projects, state.tasksByProject],
-  )
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    navigate('/login')
+  }
 
   return (
     <aside className="flex min-h-0 flex-col gap-4 overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-4 shadow-soft">
@@ -205,8 +203,8 @@ export function Sidebar() {
             <div className="truncate text-xs font-semibold text-emerald-600">Free Account</div>
           </div>
         </div>
-        <Button size="icon" variant="ghost" className="h-8 w-8" title="Settings">
-          <Settings className="h-4 w-4" />
+        <Button size="icon" variant="ghost" className="h-8 w-8" title="Logout" onClick={handleLogout}>
+          <LogOut className="h-4 w-4" />
         </Button>
       </div>
     </aside>
