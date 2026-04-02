@@ -13,8 +13,8 @@ function NavItem({ active, icon: Icon, children, onClick }) {
     <button
       onClick={onClick}
       className={cn(
-        'flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition',
-        active ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800',
+        'flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition duration-200',
+        active ? 'bg-gradient-to-r from-blue-900 to-slate-800 text-white shadow-md hover:shadow-lg' : 'text-slate-500 hover:bg-gradient-to-r hover:from-slate-200 hover:to-slate-100 hover:text-slate-800',
       )}
     >
       <IconComp className={cn('h-4 w-4', active ? 'text-white' : 'text-slate-400')} />
@@ -25,7 +25,7 @@ function NavItem({ active, icon: Icon, children, onClick }) {
 
 function Avatar({ text = 'u' }) {
   return (
-    <div className="grid h-9 w-9 place-items-center rounded-full border border-slate-200 bg-slate-100 text-xs font-bold uppercase text-slate-700">
+    <div className="grid h-9 w-9 place-items-center rounded-full border border-slate-300 bg-gradient-to-br from-blue-100 to-blue-200 text-xs font-bold uppercase text-blue-900 shadow-sm">
       {text.slice(0, 2)}
     </div>
   )
@@ -41,33 +41,42 @@ export function Sidebar() {
     [state.projects, state.ui.selectedProjectId],
   )
 
+  const projectTaskCount = useMemo(() => {
+    const counts = {}
+    state.projects.forEach((p) => {
+      counts[p.id] = (state.tasksByProject[p.id] ?? []).length
+    })
+    return counts
+  }, [state.projects, state.tasksByProject])
+
   const handleLogout = () => {
     localStorage.removeItem('token')
     navigate('/login')
   }
 
   return (
-    <aside className="flex min-h-0 flex-col gap-4 overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-4 shadow-soft">
-      <div className="text-3xl font-medium text-slate-900">Title</div>
+    <aside className="flex min-h-0 flex-col gap-4 overflow-hidden rounded-2xl border border-slate-200/70 bg-gradient-to-b from-white via-slate-50 to-slate-100 p-4 shadow-soft">
+      <div className="text-3xl font-medium bg-gradient-to-r from-slate-900 via-slate-900 to-blue-900 bg-clip-text text-transparent">Title</div>
 
-      <div className="space-y-1 border-b border-slate-100 pb-3">
+      {/* Overview Section - Prominent */}
+      <div className="rounded-xl border-2 border-slate-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-3">
         <button
           onClick={() => dispatch({ type: 'ui/setNav', nav: 'overview' })}
           className={cn(
-            'flex w-full items-center justify-between rounded-xl px-2 py-2 text-sm font-semibold transition',
-            state.ui.activeNav === 'overview' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50',
+            'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-bold transition duration-200',
+            state.ui.activeNav === 'overview'
+              ? 'bg-gradient-to-r from-blue-900 to-slate-800 text-white shadow-md'
+              : 'text-slate-700 hover:bg-white/80',
           )}
         >
-          <span className="inline-flex items-center gap-2">
-            <LayoutGrid className={cn('h-4 w-4', state.ui.activeNav === 'overview' ? 'text-white' : 'text-slate-400')} /> Overview
-          </span>
-          <ChevronDown className={cn('h-4 w-4', state.ui.activeNav === 'overview' ? 'text-white/60' : 'text-slate-300')} />
+          <LayoutGrid className={cn('h-5 w-5', state.ui.activeNav === 'overview' ? 'text-white' : 'text-blue-600')} />
+          <span>Overview</span>
         </button>
+      </div>
+
+      <div className="space-y-1 border-b border-slate-100 pb-3">
         <NavItem icon={Calendar} active={state.ui.activeNav === 'calendar'} onClick={() => dispatch({ type: 'ui/setNav', nav: 'calendar' })}>
           Calendar
-        </NavItem>
-        <NavItem icon={Folder} active={state.ui.activeNav === 'projects'} onClick={() => dispatch({ type: 'ui/setNav', nav: 'projects' })}>
-          Projects
         </NavItem>
       </div>
 

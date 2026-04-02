@@ -168,13 +168,17 @@ export function AppProvider({ children }) {
           API.get('/notes'),
           API.get('/todos')
         ])
-        const projects = projectsRes.data
-        const tasks = tasksRes.data
+        const projects = projectsRes.data.map(p => ({ ...p, id: p._id ? p._id.toString() : p._id }))
+        const tasks = tasksRes.data.map(t => ({ 
+          ...t, 
+          id: t._id ? t._id.toString() : t._id, 
+          projectId: t.projectId ? t.projectId.toString() : t.projectId 
+        }))
         const notes = notesRes.data
         const todos = todosRes.data
 
         const tasksByProject = tasks.reduce((acc, task) => {
-          const projectId = task.projectId
+          const projectId = String(task.projectId)
           if (!acc[projectId]) acc[projectId] = []
           acc[projectId].push(task)
           return acc

@@ -55,7 +55,7 @@ export function NotesRail({ todos = [], notes = [], onAddTodo, onToggleTodo, onA
 
         <div className="mt-3 max-h-64 space-y-2 overflow-auto pr-1">
           {todos.map((todo) => (
-            <div key={todo.id} className="rounded-xl border border-slate-200 bg-slate-50/60 p-2.5">
+            <div key={todo.id} className="rounded-xl border border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 p-2.5 hover:from-slate-100 hover:to-slate-150 transition-all duration-200">
               <div className="flex items-start gap-2">
                 <input
                   type="checkbox"
@@ -95,7 +95,7 @@ export function NotesRail({ todos = [], notes = [], onAddTodo, onToggleTodo, onA
         </div>
 
         {open ? (
-          <div className="mt-3 space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-2.5">
+          <div className="mt-3 space-y-2 rounded-xl border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-indigo-50 p-2.5">
             <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Note title" className="h-9" />
             <Textarea
               value={excerpt}
@@ -130,7 +130,7 @@ export function NotesRail({ todos = [], notes = [], onAddTodo, onToggleTodo, onA
 
         <div className="mt-3 min-h-0 space-y-3 overflow-auto pr-1">
           {notes.map((n) => (
-            <div key={n.id} className="rounded-xl border border-slate-200 bg-white p-3">
+            <div key={n.id} className="rounded-xl border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-slate-100 p-3 hover:shadow-md transition-all duration-200">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <div className="truncate text-sm font-extrabold text-slate-900">{n.title}</div>
