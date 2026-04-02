@@ -91,6 +91,8 @@ export default function Dashboard() {
         setSelectedProjectId(projects[0]?._id || null)
         setTasks([])
       }
+      // Update app state for Analytics
+      dispatch({ type: 'project/delete', projectId: id })
     } catch (err) {
       setError('Failed to delete project')
     }
@@ -108,6 +110,13 @@ export default function Dashboard() {
         projectId: selectedProjectId
       })
       setTasks([...tasks, res])
+      // Update app state for Analytics
+      const taskWithStringIds = {
+        ...res,
+        id: res._id ? res._id.toString() : res._id,
+        projectId: res.projectId ? res.projectId.toString() : res.projectId
+      }
+      dispatch({ type: 'task/add', task: taskWithStringIds })
       setTaskTitle('')
       setTaskDescription('')
       setTaskPriority('medium')
@@ -121,6 +130,8 @@ export default function Dashboard() {
     try {
       const res = await TaskService.updateTaskStatus(taskId, newStatus)
       setTasks(tasks.map(t => t._id === taskId ? res : t))
+      // Update app state for Analytics
+      dispatch({ type: 'task/moveStatus', projectId: selectedProjectId, taskId: taskId, status: newStatus })
     } catch (err) {
       setError('Failed to update task')
     }
@@ -130,6 +141,8 @@ export default function Dashboard() {
     try {
       await TaskService.deleteTask(id)
       setTasks(tasks.filter(t => t._id !== id))
+      // Update app state for Analytics
+      dispatch({ type: 'task/delete', projectId: selectedProjectId, taskId: id })
     } catch (err) {
       setError('Failed to delete task')
     }
@@ -142,10 +155,19 @@ export default function Dashboard() {
 
   const handleSaveTask = (updatedTask) => {
     setTasks(tasks.map(t => t._id === updatedTask._id ? updatedTask : t))
+    // Update app state for Analytics
+    const taskWithStringIds = {
+      ...updatedTask,
+      id: updatedTask._id ? updatedTask._id.toString() : updatedTask._id,
+      projectId: updatedTask.projectId ? updatedTask.projectId.toString() : updatedTask.projectId
+    }
+    dispatch({ type: 'task/update', projectId: selectedProjectId, taskId: updatedTask._id, patch: taskWithStringIds })
   }
 
   const handleDeleteTask = (taskId) => {
     setTasks(tasks.filter(t => t._id !== taskId))
+    // Update app state for Analytics
+    dispatch({ type: 'task/delete', projectId: selectedProjectId, taskId: taskId })
   }
 
   const handleLogout = () => {
@@ -219,9 +241,7 @@ export default function Dashboard() {
                         ? darkMode ? 'text-white' : 'text-indigo-900'
                         : darkMode ? 'text-slate-200' : 'text-slate-900'
                     }`}>{project.name}</p>
-                    <p className={`text-xs opacity-70 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                      {tasks.filter(t => t.projectId === project._id).length} tasks
-                    </p>
+                    
                   </div>
                   <button
                     onClick={(e) => {
@@ -360,6 +380,11 @@ export default function Dashboard() {
               <Calendar className="h-4 w-4" />
               Calendar
             </button>
+            <button
+              onClick={() => dispatch({ type: 'ui/setNav', nav: 'analytics' })}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition duration-200 ${
+                state.ui.activeNav === 'analytics'
+                  ? 'bg-gradient-to-r from-blue-900 via-blue-900 to-slate-800 text-white shadow-lg'
                   : darkMode
                   ? 'bg-gradient-to-r from-slate-700 to-slate-600 text-slate-200 hover:from-slate-600 hover:to-slate-500'
                   : 'bg-gradient-to-r from-slate-200 to-slate-300 text-slate-600 hover:from-slate-300 hover:to-slate-400'

@@ -41,14 +41,6 @@ export function Sidebar() {
     [state.projects, state.ui.selectedProjectId],
   )
 
-  const projectTaskCount = useMemo(() => {
-    const counts = {}
-    state.projects.forEach((p) => {
-      counts[p.id] = (state.tasksByProject[p.id] ?? []).length
-    })
-    return counts
-  }, [state.projects, state.tasksByProject])
-
   const handleLogout = () => {
     localStorage.removeItem('token')
     navigate('/login')
@@ -148,9 +140,6 @@ export function Sidebar() {
                     {p.name.replace('Proj', '').trim() || '•'}
                   </span>
                   <span className="truncate">{p.name}</span>
-                </span>
-                <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-xs font-semibold text-slate-500">
-                  {projectTaskCount[p.id] ?? 0}
                 </span>
               </button>
             )

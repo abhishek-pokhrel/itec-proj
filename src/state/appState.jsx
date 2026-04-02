@@ -120,6 +120,33 @@ function reducer(state, action) {
         },
       }
     }
+    case 'task/delete': {
+      const { projectId, taskId } = action
+      const tasks = state.tasksByProject[projectId] ?? []
+      return {
+        ...state,
+        tasksByProject: {
+          ...state.tasksByProject,
+          [projectId]: tasks.filter((t) => t.id !== taskId && t._id !== taskId),
+        },
+      }
+    }
+    case 'project/delete': {
+      const projectId = action.projectId
+      const newTasksByProject = { ...state.tasksByProject }
+      delete newTasksByProject[projectId]
+      const newProjects = state.projects.filter((p) => p.id !== projectId && p._id !== projectId)
+      return {
+        ...state,
+        projects: newProjects,
+        tasksByProject: newTasksByProject,
+        ui: {
+          ...state.ui,
+          selectedProjectId: newProjects[0]?.id ?? null,
+          selectedTaskId: null,
+        },
+      }
+    }
     case 'note/add': {
       const newNote = {
         id: uid('note'),
