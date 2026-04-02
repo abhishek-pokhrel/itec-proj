@@ -14,6 +14,34 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  settings: {
+    theme: {
+      type: String,
+      enum: ['light', 'dark'],
+      default: 'light',
+    },
+    emailNotifications: {
+      type: Boolean,
+      default: true,
+    },
+    pushNotifications: {
+      type: Boolean,
+      default: true,
+    },
+    reminderTime: {
+      type: String,
+      default: '09:00',
+    },
+    timezone: {
+      type: String,
+      default: 'UTC',
+    },
+    defaultView: {
+      type: String,
+      enum: ['kanban', 'calendar', 'list'],
+      default: 'kanban',
+    },
+  },
 }, {
   timestamps: true,
 })
