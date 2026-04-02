@@ -118,4 +118,57 @@ export const TaskService = {
       throw err
     }
   },
+
+  // Search and filter tasks
+  searchTasks: async (projectId, filters = {}) => {
+    try {
+      const params = new URLSearchParams()
+      if (projectId) params.append('projectId', projectId)
+      if (filters.status) params.append('status', filters.status)
+      if (filters.priority) params.append('priority', filters.priority)
+      if (filters.search) params.append('search', filters.search)
+      if (filters.labelId) params.append('labelId', filters.labelId)
+      if (filters.startDate) params.append('startDate', filters.startDate)
+      if (filters.endDate) params.append('endDate', filters.endDate)
+
+      const res = await API.get(`/tasks/search/query?${params.toString()}`)
+      return res.data
+    } catch (err) {
+      console.error('Error searching tasks:', err)
+      throw err
+    }
+  },
+
+  // Add subtask
+  addSubtask: async (taskId, title) => {
+    try {
+      const res = await API.post(`/tasks/${taskId}/subtasks`, { title })
+      return res.data
+    } catch (err) {
+      console.error('Error adding subtask:', err)
+      throw err
+    }
+  },
+
+  // Update subtask
+  updateSubtask: async (taskId, subtaskId, data) => {
+    try {
+      const res = await API.patch(`/tasks/${taskId}/subtasks/${subtaskId}`, data)
+      return res.data
+    } catch (err) {
+      console.error('Error updating subtask:', err)
+      throw err
+    }
+  },
+
+  // Delete subtask
+  deleteSubtask: async (taskId, subtaskId) => {
+    try {
+      const res = await API.delete(`/tasks/${taskId}/subtasks/${subtaskId}`)
+      return res.data
+    } catch (err) {
+      console.error('Error deleting subtask:', err)
+      throw err
+    }
+  },
 }

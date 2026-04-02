@@ -27,73 +27,80 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
-        {/* Background blobs */}
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute top-0 -left-40 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-slate-500/20 rounded-full blur-3xl"></div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-50 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute top-0 -right-40 w-96 h-96 bg-indigo-200/20 rounded-full blur-3xl"></div>
+      <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-cyan-200/20 rounded-full blur-3xl"></div>
+      
+      <div className="max-w-md w-full relative z-10">
+        <div className="mb-8 text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-900 to-slate-800 rounded-2xl shadow-lg mb-4">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+            </svg>
+          </div>
+          <h1 className="text-4xl font-bold text-slate-900 mb-2">TaskFlow</h1>
+          <p className="text-slate-600">Manage projects and tasks with ease</p>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-2xl shadow-2xl">
-          <div>
-            <h1 className="text-center text-4xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
-              Title
-            </h1>
-            <p className="mt-3 text-center text-sm text-slate-300">Sign in to your account to continue</p>
-          </div>
-
-          <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+        <div className="bg-gradient-to-br from-white via-slate-50 to-slate-100 rounded-2xl shadow-2xl border border-slate-200 p-8">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className="text-rose-200 text-sm bg-rose-500/10 border border-rose-500/20 p-3 rounded-lg">
+              <div className="text-rose-700 text-sm bg-rose-50 border border-rose-200 p-4 rounded-lg flex items-start gap-3">
+                <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
                 {error}
               </div>
             )}
 
-            <div className="space-y-4">
+            <div className="space-y-1">
+              <label className="text-sm font-semibold text-slate-900">Email Address</label>
               <Input
                 id="email"
                 name="email"
                 type="email"
                 required
-                placeholder="Email address"
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-white/10 border-white/20 text-white placeholder:text-slate-400"
               />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-sm font-semibold text-slate-900">Password</label>
               <Input
                 id="password"
                 name="password"
                 type="password"
                 required
-                placeholder="Password"
+                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="bg-white/10 border-white/20 text-white placeholder:text-slate-400"
               />
             </div>
 
             <Button
               type="submit"
               disabled={loading}
-              className="w-full mt-6"
+              className="w-full h-11 mt-2"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? 'Signing in...' : 'Sign In'}
             </Button>
-
-            <div className="text-center pt-4">
-              <p className="text-slate-400 text-sm">
-                Don't have an account?{' '}
-                <Link to="/signup" className="text-indigo-300 hover:text-indigo-200 font-semibold transition">
-                  Sign up
-                </Link>
-              </p>
-            </div>
           </form>
+
+          <div className="mt-6 pt-6 border-t border-slate-200">
+            <p className="text-slate-600 text-sm text-center">
+              Don't have an account?{' '}
+              <Link to="/signup" className="text-blue-900 hover:text-slate-800 font-semibold transition">
+                Create one
+              </Link>
+            </p>
+          </div>
         </div>
 
-        <div className="mt-8 text-center text-xs text-slate-400">
-          <p>Demo: Use any email and password to test</p>
+        <div className="mt-8 text-center text-xs text-slate-500">
+          <p>Demo credentials: any email • any password</p>
         </div>
       </div>
     </div>
