@@ -80,8 +80,33 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(401).json({ message: 'Not authorized' })
     }
 
-    await Project.findByIdAndRemove(req.params.id)
+    // Also delete all tasks in this project
+    const Task = require('../models/Task')
+    await Task.deleteMany({ projectId: req.params.id })
+
+    await Project.findByIdAndDelete(req.params.id)
     res.json({ message: 'Project removed' })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
+// @route   GET /api/projects/:id
+// @desc    Get single project
+// @access  Private
+router.get('/:id', auth, async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id)
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' })
+    }
+
+    if (project.userId.toString() !== req.user.id) {
+      return res.status(401).json({ message: 'Not authorized' })
+    }
+
+    res.json(project)
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')

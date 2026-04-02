@@ -28,62 +28,84 @@ export default function Signup() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
-        <div>
-          <h2 className="text-center text-3xl font-extrabold text-gray-900">
-            Task Manager
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">Create your account</p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full">
+        {/* Background blobs */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute top-0 -left-40 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-slate-500/20 rounded-full blur-3xl"></div>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="text-red-600 text-sm bg-red-50 p-3 rounded">{error}</div>
-          )}
-          <div className="space-y-4">
-            <Input
-              id="name"
-              name="name"
-              type="text"
-              required
-              placeholder="Full Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              required
-              placeholder="Email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              required
-              placeholder="Password (min 6 characters)"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+
+        <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-2xl shadow-2xl">
+          <div>
+            <h1 className="text-center text-4xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+              Title
+            </h1>
+            <p className="mt-3 text-center text-sm text-slate-300">Create your account to get started</p>
           </div>
 
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full"
-          >
-            {loading ? 'Creating account...' : 'Sign up'}
-          </Button>
+          <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+            {error && (
+              <div className="text-rose-200 text-sm bg-rose-500/10 border border-rose-500/20 p-3 rounded-lg">
+                {error}
+              </div>
+            )}
 
-          <div className="text-center">
-            <Link to="/login" className="text-indigo-600 hover:text-indigo-500 text-sm">
-              Already have an account? Sign in
-            </Link>
-          </div>
-        </form>
+            <div className="space-y-4">
+              <Input
+                id="name"
+                name="name"
+                type="text"
+                required
+                placeholder="Full Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="bg-white/10 border-white/20 text-white placeholder:text-slate-400"
+              />
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                required
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="bg-white/10 border-white/20 text-white placeholder:text-slate-400"
+              />
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                required
+                placeholder="Password (min 6 characters)"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="bg-white/10 border-white/20 text-white placeholder:text-slate-400"
+              />
+            </div>
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full mt-6"
+            >
+              {loading ? 'Creating account...' : 'Sign up'}
+            </Button>
+
+            <div className="text-center pt-4">
+              <p className="text-slate-400 text-sm">
+                Already have an account?{' '}
+                <Link to="/login" className="text-indigo-300 hover:text-indigo-200 font-semibold transition">
+                  Sign in
+                </Link>
+              </p>
+            </div>
+          </form>
+        </div>
+
+        <div className="mt-8 text-center text-xs text-slate-400">
+          <p>Demo: Use any email and password to test</p>
+        </div>
       </div>
     </div>
   )

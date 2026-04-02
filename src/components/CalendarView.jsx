@@ -1,184 +1,196 @@
-import React, { useMemo, useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useApp } from '../state/useApp'
-import { cn } from '../lib/cn'
 import { Badge } from '../ui/Badge'
-import { Button } from '../ui/Button'
-import { Card } from '../ui/Card'
+import { TaskService } from '../lib/taskService'
 
-const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+export default function CalendarView({ projectId }) {
+  const [currentDate, setCurrentDate] = useState(new Date())
+  const [tasks, setTasks] = useState([])
+  const [selectedDate, setSelectedDate] = useState(null)
+  const [loading, setLoading] = useState(true)
 
-function getMonthData(year, month) {
-  const firstDay = new Date(year, month, 1).getDay()
-  const daysInMonth = new Date(year, month + 1, 0).getDate()
-  const daysInPrevMonth = new Date(year, month, 0).getDate()
+  useEffect(() => {
+    fetchTasks()
+  }, [projectId])
 
-  const cells = []
-
-  // Previous month trailing days
-  for (let i = firstDay - 1; i >= 0; i--) {
-    cells.push({ day: daysInPrevMonth - i, currentMonth: false, date: new Date(year, month - 1, daysInPrevMonth - i) })
-  }
-
-  // Current month days
-  for (let d = 1; d <= daysInMonth; d++) {
-    cells.push({ day: d, currentMonth: true, date: new Date(year, month, d) })
-  }
-
-  // Next month leading days to fill 6 rows
-  const remaining = 42 - cells.length
-  for (let d = 1; d <= remaining; d++) {
-    cells.push({ day: d, currentMonth: false, date: new Date(year, month + 1, d) })
-  }
-
-  return cells
-}
-
-function isSameDay(a, b) {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
-}
-
-function toDateKey(date) {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-}
-
-export function CalendarView() {
-  const { state, dispatch, derived } = useApp()
-  const allTasks = derived.allTasks
-  const today = new Date()
-
-  const [viewDate, setViewDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1))
-  const year = viewDate.getFullYear()
-  const month = viewDate.getMonth()
-
-  const cells = useMemo(() => getMonthData(year, month), [year, month])
-
-  // Index tasks by date key for fast lookup
-  const tasksByDate = useMemo(() => {
-    const map = {}
-    for (const t of allTasks) {
-      if (!t.deadlineAt) continue
-      const d = new Date(t.deadlineAt)
-      const key = toDateKey(d)
-      if (!map[key]) map[key] = []
-      map[key].push(t)
+  const fetchTasks = async () => {
+    try {
+      setLoading(true)
+      const data = await TaskService.getTasksByProject(projectId)
+      setTasks(data)
+    } catch (err) {
+      console.error('Error fetching tasks:', err)
+    } finally {
+      setLoading(false)
     }
-    return map
-  }, [allTasks])
+  }
 
-  const monthLabel = viewDate.toLocaleString(undefined, { month: 'long', year: 'numeric' })
+  const getDaysInMonth = (date) => {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
+  }
 
-  const goPrev = () => setViewDate(new Date(year, month - 1, 1))
-  const goNext = () => setViewDate(new Date(year, month + 1, 1))
-  const goToday = () => setViewDate(new Date(today.getFullYear(), today.getMonth(), 1))
+  const getFirstDayOfMonth = (date) => {
+    return new Date(date.getFullYear(), date.getMonth(), 1).getDay()
+  }
+
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case 'high': return 'bg-rose-100 text-rose-700'
+      case 'medium': return 'bg-amber-100 text-amber-700'
+      case 'low': return 'bg-cyan-100 text-cyan-700'
+      default: return 'bg-slate-100 text-slate-700'
+    }
+  }
+
+  const getTasksForDate = (day) => {
+    const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
+    const dateStr = date.toDateString()
+    return tasks.filter(task => {
+      if (!task.dueDate) return false
+      return new Date(task.dueDate).toDateString() === dateStr
+    })
+  }
+
+  const previousMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))
+  }
+
+  const nextMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))
+  }
+
+  const daysInMonth = getDaysInMonth(currentDate)
+  const firstDayOfMonth = getFirstDayOfMonth(currentDate)
+  const monthName = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })
+
+  const daysArray = []
+  for (let i = 0; i < firstDayOfMonth; i++) {
+    daysArray.push(null)
+  }
+  for (let i = 1; i <= daysInMonth; i++) {
+    daysArray.push(i)
+  }
+
+  const weeks = []
+  for (let i = 0; i < daysArray.length; i += 7) {
+    weeks.push(daysArray.slice(i, i + 7))
+  }
+
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
   return (
-    <Card className="flex flex-col overflow-hidden p-4">
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between pb-4">
-        <div>
-          <div className="text-lg font-extrabold text-slate-900">{monthLabel}</div>
-          <div className="text-xs font-semibold text-slate-400">Task deadlines across all projects</div>
-        </div>
-        <div className="flex items-center gap-1">
-          <Button size="sm" variant="ghost" onClick={goToday}>Today</Button>
-          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={goPrev}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={goNext}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+      <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+        <h3 className="text-lg font-bold text-slate-900">{monthName}</h3>
+        <div className="flex gap-2">
+          <button
+            onClick={previousMonth}
+            className="p-2 hover:bg-slate-100 rounded-lg transition"
+          >
+            <ChevronLeft className="h-5 w-5 text-slate-600" />
+          </button>
+          <button
+            onClick={nextMonth}
+            className="p-2 hover:bg-slate-100 rounded-lg transition"
+          >
+            <ChevronRight className="h-5 w-5 text-slate-600" />
+          </button>
         </div>
       </div>
 
-      {/* Day headers */}
-      <div className="grid grid-cols-7 border-b border-slate-100">
-        {DAYS.map((d) => (
-          <div key={d} className="px-1 pb-2 text-center text-xs font-extrabold uppercase tracking-wide text-slate-400">
-            {d}
+      {/* Calendar Grid */}
+      <div className="p-4">
+        {/* Day names */}
+        <div className="grid grid-cols-7 gap-2 mb-3">
+          {dayNames.map(day => (
+            <div key={day} className="text-center text-xs font-bold text-slate-500 py-2">
+              {day}
+            </div>
+          ))}
+        </div>
+
+        {/* Days */}
+        {weeks.map((week, weekIdx) => (
+          <div key={weekIdx} className="grid grid-cols-7 gap-2 mb-2">
+            {week.map((day, dayIdx) => {
+              const dayTasks = day ? getTasksForDate(day) : []
+              const isToday = day && new Date().toDateString() === new Date(currentDate.getFullYear(), currentDate.getMonth(), day).toDateString()
+              const isSelected = day && selectedDate && selectedDate.toDateString() === new Date(currentDate.getFullYear(), currentDate.getMonth(), day).toDateString()
+
+              return (
+                <div
+                  key={dayIdx}
+                  onClick={() => day && setSelectedDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day))}
+                  className={`min-h-24 p-2 rounded-lg border cursor-pointer transition ${
+                    day
+                      ? isToday
+                        ? 'border-indigo-300 bg-indigo-50'
+                        : isSelected
+                        ? 'border-indigo-200 bg-indigo-50'
+                        : 'border-slate-200 hover:border-slate-300 bg-white'
+                      : 'bg-slate-50 border-slate-100'
+                  }`}
+                >
+                  {day && (
+                    <>
+                      <div className={`text-sm font-bold mb-1 ${isToday ? 'text-indigo-600' : 'text-slate-900'}`}>
+                        {day}
+                      </div>
+                      <div className="space-y-1">
+                        {dayTasks.slice(0, 2).map(task => (
+                          <div
+                            key={task._id}
+                            className={`text-xs px-2 py-0.5 rounded truncate font-semibold ${getPriorityColor(task.priority)}`}
+                            title={task.title}
+                          >
+                            {task.title}
+                          </div>
+                        ))}
+                        {dayTasks.length > 2 && (
+                          <div className="text-xs text-slate-500 px-2 font-semibold">
+                            +{dayTasks.length - 2} more
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )
+            })}
           </div>
         ))}
       </div>
 
-      {/* Calendar grid */}
-      <div className="grid flex-1 grid-cols-7">
-        {cells.map((cell, idx) => {
-          const key = toDateKey(cell.date)
-          const tasks = tasksByDate[key] ?? []
-          const isToday = isSameDay(cell.date, today)
-
-          return (
-            <div
-              key={idx}
-              className={cn(
-                'min-h-[80px] border-b border-r border-slate-100 p-1',
-                !cell.currentMonth && 'bg-slate-50/50',
-                idx % 7 === 0 && 'border-l-0',
-              )}
-            >
-              <div className="flex items-center justify-between">
-                <span
-                  className={cn(
-                    'inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold',
-                    isToday ? 'bg-indigo-600 text-white' : cell.currentMonth ? 'text-slate-700' : 'text-slate-400',
-                  )}
-                >
-                  {cell.day}
-                </span>
-                {tasks.length > 0 && (
-                  <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
-                )}
-              </div>
-              <div className="mt-0.5 space-y-0.5 overflow-hidden">
-                {tasks.slice(0, 2).map((t) => (
-                  <button
-                    key={t.id}
-                    onClick={() => {
-                      // Find which project this task belongs to
-                      const projId = Object.entries(state.tasksByProject).find(([, list]) =>
-                        list.some((tk) => tk.id === t.id),
-                      )?.[0]
-                      if (projId) {
-                        dispatch({ type: 'ui/selectProject', projectId: projId })
-                        dispatch({ type: 'ui/selectTask', taskId: t.id })
-                        dispatch({ type: 'ui/setNav', nav: 'projects' })
-                      }
-                    }}
-                    className={cn(
-                      'w-full truncate rounded px-1 py-0.5 text-left text-[10px] font-semibold transition hover:opacity-80',
-                      t.status === 'done'
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : t.status === 'in_progress'
-                          ? 'bg-blue-100 text-blue-700'
-                          : 'bg-amber-100 text-amber-800',
-                    )}
-                  >
-                    {t.title}
-                  </button>
-                ))}
-                {tasks.length > 2 && (
-                  <div className="truncate px-1 text-[10px] font-semibold text-slate-400">
-                    +{tasks.length - 2} more
+      {/* Selected Date Tasks */}
+      {selectedDate && (
+        <div className="border-t border-slate-200 p-6 bg-slate-50">
+          <p className="text-sm font-bold text-slate-600 mb-3">
+            Tasks for {selectedDate.toDateString()}
+          </p>
+          <div className="space-y-2">
+            {getTasksForDate(selectedDate.getDate()).length > 0 ? (
+              getTasksForDate(selectedDate.getDate()).map(task => (
+                <div key={task._id} className="bg-white p-3 rounded-lg border border-slate-200">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <p className="font-semibold text-sm text-slate-900">{task.title}</p>
+                      {task.description && (
+                        <p className="text-xs text-slate-600 mt-1">{task.description}</p>
+                      )}
+                    </div>
+                    <span className={`text-xs px-2 py-1 rounded-full font-semibold ${getPriorityColor(task.priority)}`}>
+                      {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+                    </span>
                   </div>
-                )}
-              </div>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Legend */}
-      <div className="mt-3 flex items-center gap-4">
-        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
-          <span className="h-2 w-2 rounded-full bg-amber-400" /> Open
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-slate-500">No tasks scheduled for this date</p>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
-          <span className="h-2 w-2 rounded-full bg-blue-500" /> In Progress
-        </div>
-        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
-          <span className="h-2 w-2 rounded-full bg-emerald-500" /> Done
-        </div>
-      </div>
-    </Card>
+      )}
+    </div>
   )
 }
